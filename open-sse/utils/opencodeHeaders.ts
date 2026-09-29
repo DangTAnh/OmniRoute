@@ -67,7 +67,11 @@ export function resolveOpencodeCliDefaults(
   const configuredUA = process.env[envUAKey]?.trim() || process.env.OPENCODE_USER_AGENT?.trim();
   // Auto-refresh the live CLI version in the background (coalesced, 6h TTL, never
   // throws); the default below reads the cache synchronously so synthesis never blocks.
-  void refreshOpencodeCliVersion();
+  // Skipped under test runners: their globalThis.fetch stubs count dispatches, and the
+  // registry lookup would be counted as one (same guard as adobeFireflySession).
+  if (!process.env.NODE_TEST_CONTEXT && !process.env.VITEST && process.env.NODE_ENV !== "test") {
+    void refreshOpencodeCliVersion();
+  }
   return {
     userAgent:
       configuredUA && (!gated || satisfiesOpencodeUserAgentContract(configuredUA))

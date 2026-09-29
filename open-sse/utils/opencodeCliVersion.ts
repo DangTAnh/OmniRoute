@@ -11,10 +11,10 @@
  * stays valid and `OPENCODE_USER_AGENT` still overrides everything.
  *
  * Sync header synthesis (`getCachedOpencodeCliVersion`) is pure and never
- * networks — cold/offline returns the pin. `OpencodeExecutor.execute()` kicks
- * `refreshOpencodeCliVersion()` fire-and-forget per request (coalesced, 6h TTL,
- * never throws), so the first request warms the cache in background and later
- * requests send the live version.
+ * networks — cold/offline returns the pin. `resolveOpencodeCliDefaults()` (in
+ * `opencodeHeaders.ts`) kicks `refreshOpencodeCliVersion()` fire-and-forget per
+ * request (coalesced, 6h TTL, never throws), so the first request warms the
+ * cache in background and later requests send the live version.
  */
 
 const NPM_OPENCODE_LATEST_URL = "https://registry.npmjs.org/opencode-ai/latest";
@@ -82,7 +82,10 @@ export function resetOpencodeCliVersionCache(): void {
 }
 
 /** Test seam: seed a fixed version (stale when cachedAt is old). */
-export function configureOpencodeCliVersionForTests(version: string, cachedAtValue = Date.now()): void {
+export function configureOpencodeCliVersionForTests(
+  version: string,
+  cachedAtValue = Date.now()
+): void {
   if (!isOpencodeCliVersion(version)) {
     throw new TypeError(`Invalid OpenCode CLI version: ${version}`);
   }
